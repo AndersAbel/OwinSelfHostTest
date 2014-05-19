@@ -25,15 +25,22 @@ namespace OwinSelfHostExpanded
         private static void Startup(IAppBuilder app)
         {
             // Have to explicitly construct the Func<...> since the argument of
-            // Use is of type object.
-            app.Use(new Func<AppFunc, AppFunc>(Middleware));
+            // Use() is of type object.
+            app.Use(new Func<AppFunc, AppFunc>(BasicAuthenticationMiddleware));
+
+            app.Use(new Func<AppFunc, AppFunc>(StartPageMiddleware));
+        }
+
+        private static AppFunc BasicAuthenticationMiddleware(AppFunc next)
+        {
+            return new BasicAuthenticationHandler(next).InvokeAsync;
         }
 
         // Builds an item in an assembly line, e.g. the robot that paints items as they
         // are manufactured.
-        private static AppFunc Middleware(AppFunc next)
+        private static AppFunc StartPageMiddleware(AppFunc next)
         {
-            return new Handler(next).Invoke;  
+            return new StartPageHandler(next).InvokeAsync;
         }
     }
 }
