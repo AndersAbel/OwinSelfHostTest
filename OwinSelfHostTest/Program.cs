@@ -18,9 +18,16 @@ namespace OwinSelfHostTest
                 {
                     app.Use(new Func<AppFunc, AppFunc>(next => (async context =>
                         {
-                            using (var writer = new StreamWriter(context["owin.ResponseBody"] as Stream))
+                            if(context["owin.RequestPath"] as string == "/")
                             {
-                                await writer.WriteAsync("Hello World!");
+                                using (var writer = new StreamWriter(context["owin.ResponseBody"] as Stream))
+                                {
+                                    await writer.WriteAsync("Hello World!");
+                                }
+                            }
+                            else
+                            {
+                                await next.Invoke(context);
                             }
                         })));
                 }))
